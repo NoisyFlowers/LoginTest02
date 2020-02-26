@@ -1,0 +1,49 @@
+﻿<ArcGIS defaultAssembly="LoginTest02.dll" defaultNamespace="LoginTest02" xmlns="http://schemas.esri.com/DADF/Registry" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schemas.esri.com/DADF/Registry file:///C:/Program%20Files/ArcGIS/Pro/bin/ArcGIS.Desktop.Framework.xsd">
+  <AddInInfo id="{27f77d42-e548-4e84-83fb-08eb55740a77}" version="1.0" desktopVersion="2.5.22081">
+    <Name>LoginTest02</Name>
+    <Description>LoginTest02 description</Description>
+    <Image>Images\AddinDesktop32.png</Image>
+    <Author>Douglas</Author>
+    <Company>Acme</Company>
+    <Date>2/12/2020 4:29:38 PM, 2020</Date>
+    <Subject>Framework</Subject>
+    <!-- Note subject can be one or more of these topics:
+                    Content, Framework, Editing, Geodatabase, Geometry, Geoprocessing, Layouts, Map Authoring, Map Exploration -->
+  </AddInInfo>
+  <modules>
+    <insertModule id="LoginTest02_Module" className="Module1" autoLoad="false" caption="Module1">
+      <!-- uncomment to have the control hosted on a separate tab-->
+      <tabs>
+        <!--<tab id="LoginTest02_Tab1" caption="New Tab">
+          <group refID="LoginTest02_Group1"/>
+        </tab>-->
+      </tabs>
+      <groups>
+        <!-- comment this out if you have no controls on the Addin tab to avoid
+              an empty group-->
+        <group id="LoginTest02_Group1" caption="" appearsOnAddInTab="true">
+          <!-- host controls within groups -->
+          <button refID="LoginTest02_LoginButton" size="large" />
+        </group>
+		<group id="LoginTest02_Group2" caption="Features" appearsOnAddInTab="true">
+			  <!-- host controls within groups -->
+			  <button refID="LoginTest02_PointButton" size="large" />
+		  </group>
+	  </groups>
+      <controls>
+        <!-- add your controls here -->
+        <button id="LoginTest02_LoginButton" caption="Login" className="LoginButton" loadOnClick="true" smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue16.png" largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue32.png">
+          <tooltip heading="Tooltip Heading">Tooltip text<disabledText /></tooltip>
+        </button>
+        <button id="LoginTest02_PointButton" caption="Point" className="PointButton" condition="user_logged_in" loadOnClick="true" smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue16.png" largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue32.png">
+          <tooltip heading="Tooltip Heading">Tooltip text<disabledText /></tooltip>
+        </button>
+      </controls>
+	</insertModule>
+  </modules>
+	<conditions>
+		<insertCondition id="userLoginCondition">
+			<state id="user_logged_in"/>
+		</insertCondition>
+	</conditions>
+</ArcGIS>
