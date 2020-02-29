@@ -8,7 +8,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ArcGIS.Core.CIM;
+using ArcGIS.Core.Data;
 using ArcGIS.Desktop.Framework;
+using ArcGIS.Desktop.Mapping;
 using Npgsql;
 
 namespace LoginTest02
@@ -85,7 +88,8 @@ namespace LoginTest02
                 DataHelper.userID = (int)command.ExecuteScalar();
                 //Debug.WriteLine("user id = " + id);
                 conn.Close();
-            } else
+            }
+            else
             {
                 Debug.WriteLine("old name");
                 NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=postgres; " +
@@ -104,12 +108,52 @@ namespace LoginTest02
             //FrameworkApplication.EventAggregator.GetEvent<UserSelectionFinishedEvent>().Publish(
             //UserSelectionFinishedEvent.Publish(userSelectionFinishedEventArgs);
             FrameworkApplication.State.Activate("user_logged_in");
+            openDatabase();
             this.DialogResult = DialogResult.OK;
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
+        }
+
+        private async Task openDatabase()
+        {
+            await ArcGIS.Desktop.Framework.Threading.Tasks.QueuedTask.Run(() =>
+            {
+                // Opening a Non-Versioned SQL Server instance.
+                ArcGIS.Core.Data.DatabaseConnectionProperties connectionProperties = new DatabaseConnectionProperties(EnterpriseDatabaseType.PostgreSQL)
+                {
+                    AuthenticationMode = AuthenticationMode.DBMS,
+
+                    // Where testMachine is the machine where the instance is running and testInstance is the name of the SqlServer instance.
+                    Instance = @"127.0.0.1",
+
+                    // Provided that a database called LocalGovernment has been created on the testInstance and geodatabase has been enabled on the database.
+                    Database = "geomapmaker",
+
+                    // Provided that a login called gdb has been created and corresponding schema has been created with the required permissions.
+                    User = "douglas",
+                    Password = "password",
+                    //Version = "dbo.DEFAULT"
+                };
+
+                using (Geodatabase geodatabase = new Geodatabase(connectionProperties))
+                {
+                    // Use the geodatabase
+                    Map map = MapView.Active.Map;
+                    CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
+                    {
+                        WorkspaceConnectionString = geodatabase.GetConnectionString(),
+                        GeometryType = esriGeometryType.esriGeometryPoint,
+                        OIDFields = "OBJECTID",
+                        Srid = "4326",
+                        SqlQuery = "select * from public.features where user_id = " + DataHelper.userID,
+                        Dataset = "features"
+                    };
+                    FeatureLayer flyr = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, map, layerName: "Doug's points");
+                }
+            });
         }
     }
 }
