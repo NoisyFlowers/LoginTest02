@@ -137,11 +137,10 @@ namespace LoginTest02
                     Password = "password",
                     //Version = "dbo.DEFAULT"
                 };
-
+                
                 using (Geodatabase geodatabase = new Geodatabase(connectionProperties))
                 {
                     // Use the geodatabase
-                    Map map = MapView.Active.Map;
                     CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
                     {
                         WorkspaceConnectionString = geodatabase.GetConnectionString(),
@@ -151,7 +150,7 @@ namespace LoginTest02
                         SqlQuery = "select * from public.features where user_id = " + DataHelper.userID,
                         Dataset = "features"
                     };
-                    FeatureLayer flyr = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, map, layerName: "Doug's points");
+                    FeatureLayer flyr = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: "Doug's points");
                 }
             });
         }
