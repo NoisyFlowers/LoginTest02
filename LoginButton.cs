@@ -25,7 +25,8 @@ namespace LoginTest02
         protected override void OnClick()
         {
             //LoginDialog lD = new LoginDialog(((Module1)FrameworkApplication.FindModule("LoginTest02_Module")).helper);
-            LoginDialog lD = new LoginDialog();
+            //LoginDialog lD = new LoginDialog();
+            LoginDialogWPF lD = new LoginDialogWPF();
             lD.ShowDialog();
         }
     }

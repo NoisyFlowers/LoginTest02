@@ -20,14 +20,14 @@ using Npgsql;
 
 namespace LoginTest02
 {
-	internal class PointTool : MapTool
+	internal class PolyTool : MapTool
 	{
 		private FeatureLayer featureLayer = null;
 
-		public PointTool()
+		public PolyTool()
 		{
 			IsSketchTool = true;
-			SketchType = SketchGeometryType.Point;
+			SketchType = SketchGeometryType.Polygon;
 			SketchOutputMode = SketchOutputMode.Map;
 
 		}
@@ -65,6 +65,7 @@ namespace LoginTest02
 
 			//String sql = String.Format("insert into public.features (user_id, geom) values({0}, ST_GeomFromText('POINT({1} {2})', {3}))", DataHelper.userID, ((MapPoint)geometry).X, ((MapPoint)geometry).Y, ((MapPoint)geometry).SpatialReference.GcsWkid);
 			String sql = String.Format("insert into public.features (user_id, geom) values({0}, ST_GeomFromText('{1}', {2}))", DataHelper.userID, wktString, srid);
+			Debug.WriteLine("sql = " + sql);
 			Npgsql.NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=postgres; " +
 			   "Password=postgres;Database=geomapmaker;");
 			conn.Open();
@@ -72,49 +73,51 @@ namespace LoginTest02
 			int rowCount = command.ExecuteNonQuery();
 			conn.Close();
 
-			MapView.Active.RedrawAsync(true);
+			await MapView.Active.RedrawAsync(true);
+
 			if (rowCount > 0)
 			{
-				MessageBox.Show("Point added");
-			} else
+				MessageBox.Show("Polygon added");
+			}
+			else
 			{
 				MessageBox.Show("Something went wrong");
 			}
-			
+
 
 			return true;
 		}
 
-        private async Task addFeatureLayer()
-        {
-            await ArcGIS.Desktop.Framework.Threading.Tasks.QueuedTask.Run(() =>
-            {
-                ArcGIS.Core.Data.DatabaseConnectionProperties connectionProperties = new DatabaseConnectionProperties(EnterpriseDatabaseType.PostgreSQL)
-                {
-                    AuthenticationMode = AuthenticationMode.DBMS,
-                    Instance = @"127.0.0.1",
-                    Database = "geomapmaker",
-                    User = "douglas",
-                    Password = "password",
-                    //Version = "dbo.DEFAULT"
-                };
+		private async Task addFeatureLayer()
+		{
+			await ArcGIS.Desktop.Framework.Threading.Tasks.QueuedTask.Run(() =>
+			{
+				ArcGIS.Core.Data.DatabaseConnectionProperties connectionProperties = new DatabaseConnectionProperties(EnterpriseDatabaseType.PostgreSQL)
+				{
+					AuthenticationMode = AuthenticationMode.DBMS,
+					Instance = @"127.0.0.1",
+					Database = "geomapmaker",
+					User = "douglas",
+					Password = "password",
+					//Version = "dbo.DEFAULT"
+				};
 
-                using (Geodatabase geodatabase = new Geodatabase(connectionProperties))
-                {
-                    // Use the geodatabase
-                    CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
-                    {
-                        WorkspaceConnectionString = geodatabase.GetConnectionString(),
-                        GeometryType = esriGeometryType.esriGeometryPoint,
-                        OIDFields = "OBJECTID",
-                        Srid = "4326",
-                        SqlQuery = "select * from public.features where user_id = " + DataHelper.userID + " and ST_GeometryType(geom)='ST_Point'",
-                        Dataset = "features"
-                    };
-					featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: DataHelper.userName + "'s points");
+				using (Geodatabase geodatabase = new Geodatabase(connectionProperties))
+				{
+					// Use the geodatabase
+					CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
+					{
+						WorkspaceConnectionString = geodatabase.GetConnectionString(),
+						GeometryType = esriGeometryType.esriGeometryPolygon,
+						OIDFields = "OBJECTID",
+						Srid = "4326",
+						SqlQuery = "select * from public.features where user_id = " + DataHelper.userID + " and ST_GeometryType(geom)='ST_MultiPolygon'",
+						Dataset = "features"
+					};
+					featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: DataHelper.userName + "'s polygons");
 
-                }
-            });
-        }
-    }
+				}
+			});
+		}
+	}
 }

@@ -27,30 +27,41 @@
         </group>
         <group id="LoginTest02_Group2" caption="Features" appearsOnAddInTab="true">
           <!-- host controls within groups -->
-          <button refID="LoginTest02_PointButton" size="large" />
-		  <tool refID="LoginTest02_PointTool" size="large" />
-		</group>
+          <!--<button refID="LoginTest02_PointButton" size="large" />-->
+          <tool refID="LoginTest02_PointTool" size="large" />
+          <tool refID="LoginTest02_LineTool" size="large" />
+          <tool refID="LoginTest02_PolyTool" size="large" />
+       </group>
       </groups>
       <controls>
         <!-- add your controls here -->
         <button id="LoginTest02_LoginButton" caption="Login" className="LoginButton" loadOnClick="true" smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue16.png" largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue32.png">
           <tooltip heading="Tooltip Heading">Tooltip text<disabledText /></tooltip>
         </button>
+        <!--
         <button id="LoginTest02_PointButton" caption="Point" className="PointButton" condition="userLoginCondition" loadOnClick="true" smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue16.png" largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue32.png">
           <tooltip heading="Tooltip Heading">Tooltip text<disabledText /></tooltip>
         </button>
+		-->
         <tool id="LoginTest02_PointTool" caption="Add Point" className="PointTool" loadOnClick="true" smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed16.png" largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed32.png" condition="userLoginCondition">
           <tooltip heading="Add point features">Add point features to the map<disabledText /></tooltip>
+        </tool>
+        <tool id="LoginTest02_LineTool" caption="Add Line" className="LineTool" loadOnClick="true" smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed16.png" largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed32.png" condition="userLoginCondition">
+          <tooltip heading="Tooltip Heading">Add line features to the map<disabledText /></tooltip>
+        </tool>
+        <tool id="LoginTest02_PolyTool" caption="Add Polygon" className="PolyTool" loadOnClick="true" smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed16.png" largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed32.png" condition="userLoginCondition">
+          <tooltip heading="Tooltip Heading">Add polygon features to the map<disabledText /></tooltip>
         </tool>
       </controls>
     </insertModule>
   </modules>
   <conditions>
-    <insertCondition id="userLoginCondition"> <!-- TODO: should change this to something like userLoggedInAndMapLoaded-->
-	    <and>
-			<state id="user_logged_in" />
-		    <state id="esri_mapping_mapPane" />
-	  </and>
+    <insertCondition id="userLoginCondition">
+      <!-- TODO: should change this to something like userLoggedInAndMapLoaded-->
+      <and>
+        <state id="user_logged_in" />
+        <state id="esri_mapping_mapPane" />
+      </and>
     </insertCondition>
   </conditions>
 </ArcGIS>

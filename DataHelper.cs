@@ -9,5 +9,6 @@ namespace LoginTest02
 	public class DataHelper
 	{
 		public static int userID;
+		public static String userName;
 	}
 }

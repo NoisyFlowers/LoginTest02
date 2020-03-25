@@ -148,7 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataHelper.cs" />
-    <Compile Include="PointButton.cs" />
+    <Compile Include="LineTool.cs" />
     <Compile Include="PointDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -163,7 +163,11 @@
       <DependentUpon>LoginDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Module1.cs" />
+    <Compile Include="LoginDialogWPF.xaml.cs">
+      <DependentUpon>LoginDialogWPF.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PointTool.cs" />
+    <Compile Include="PolyTool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserSelectionFinishedEvent.cs" />
     <Compile Include="UserSelectionFinishedEventArgs.cs" />
@@ -205,6 +209,12 @@
   </ItemGroup>
   <ItemGroup>
     <AddInContent Include="DarkImages\GenericButtonRed32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="LoginDialogWPF.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!--
