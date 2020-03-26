@@ -169,6 +169,7 @@
     <Compile Include="PointTool.cs" />
     <Compile Include="PolyTool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SelectTool.cs" />
     <Compile Include="UserSelectionFinishedEvent.cs" />
     <Compile Include="UserSelectionFinishedEventArgs.cs" />
   </ItemGroup>
