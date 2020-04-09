@@ -120,21 +120,28 @@ namespace LoginTest02
 
 				using (Geodatabase geodatabase = new Geodatabase(connectionProperties))
 				{
-					// Use the geodatabase
-					//CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
-					this.sqldc = new CIMSqlQueryDataConnection()
-					{
-						WorkspaceConnectionString = geodatabase.GetConnectionString(),
-						GeometryType = esriGeometryType.esriGeometryPolyline,
-						OIDFields = "OBJECTID",
-						Srid = "4326",
-						SqlQuery = "select * from public.features where user_id = " + DataHelper.userID + " and ST_GeometryType(geom)='ST_MultiLineString'",
-						Dataset = "features"
-					};
-					featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: DataHelper.userName + "'s lines");
+				// Use the geodatabase
+				//CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
+				
+				this.sqldc = new CIMSqlQueryDataConnection()
+				{
+					WorkspaceConnectionString = geodatabase.GetConnectionString(),
+					GeometryType = esriGeometryType.esriGeometryPolyline,
+					OIDFields = "OBJECTID",
+					Srid = "4326",
+					SqlQuery = "select * from public.features where user_id = " + DataHelper.userID + " and ST_GeometryType(geom)='ST_MultiLineString'",
+					Dataset = "features"
+				};
+				featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: DataHelper.userName + "'s lines");
+				
+				/*
+				string url = @"C:\Users\Douglas\Documents\testCollections\GeneWash.gdb\GeneWash.gdb\CrossSectionB\CSBContactsAndFaults";  //FeatureClass of a FileGeodatabase
 
-				}
-			});
+				Uri uri = new Uri(url);
+				featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(uri, MapView.Active.Map);
+				*/
+		}
+	});
 		}
 	}
 }
