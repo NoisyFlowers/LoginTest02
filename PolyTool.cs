@@ -23,6 +23,7 @@ namespace LoginTest02
 	internal class PolyTool : MapTool
 	{
 		private FeatureLayer featureLayer = null;
+		private CIMSqlQueryDataConnection sqldc = null;
 
 		public PolyTool()
 		{
@@ -34,6 +35,7 @@ namespace LoginTest02
 
 		protected override Task OnToolDeactivateAsync(bool hasMapViewChanged)
 		{
+			/*
 			if (featureLayer != null)
 			{
 				QueuedTask.Run(() =>
@@ -41,39 +43,50 @@ namespace LoginTest02
 					MapView.Active.Map.RemoveLayer(featureLayer);
 				});
 			}
-
-			return base.OnToolDeactivateAsync(hasMapViewChanged);
+			return base.OnToolDeactivateAsync(true);
+			*/
+				return QueuedTask.Run(() =>
+				{
+					if (featureLayer != null)
+					{
+						MapView.Active.Map.RemoveLayer(featureLayer);
+					}
+				});
 		}
 
 		protected override Task OnToolActivateAsync(bool active)
 		{
-			addFeatureLayer();
-
-			return base.OnToolActivateAsync(active);
+			return addFeatureLayer();
 		}
 
 		protected override async Task<bool> OnSketchCompleteAsync(Geometry geometry)
 		{
-			WKTExportFlags exportFlagsNoZ = WKTExportFlags.wktExportStripZs;
-			WKTExportFlags exportFlagsNoM = WKTExportFlags.wktExportStripMs;
-			var wktString = GeometryEngine.Instance.ExportToWKT(exportFlagsNoZ | exportFlagsNoM, geometry);
+			var rowCount = await QueuedTask.Run(() =>
+			{
+				WKTExportFlags exportFlagsNoZ = WKTExportFlags.wktExportStripZs;
+				WKTExportFlags exportFlagsNoM = WKTExportFlags.wktExportStripMs;
+				var wktString = GeometryEngine.Instance.ExportToWKT(exportFlagsNoZ | exportFlagsNoM, geometry);
 
-			Debug.WriteLine("geometry = " + wktString);
+				Debug.WriteLine("geometry = " + wktString);
 
-			var srid = geometry.SpatialReference.GcsWkid;
-			Debug.WriteLine("srid = " + srid);
+				var srid = geometry.SpatialReference.GcsWkid;
+				Debug.WriteLine("srid = " + srid);
 
-			//String sql = String.Format("insert into public.features (user_id, geom) values({0}, ST_GeomFromText('POINT({1} {2})', {3}))", DataHelper.userID, ((MapPoint)geometry).X, ((MapPoint)geometry).Y, ((MapPoint)geometry).SpatialReference.GcsWkid);
-			String sql = String.Format("insert into public.features (user_id, geom) values({0}, ST_GeomFromText('{1}', {2}))", DataHelper.userID, wktString, srid);
-			Debug.WriteLine("sql = " + sql);
-			Npgsql.NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=postgres; " +
-			   "Password=postgres;Database=geomapmaker;");
-			conn.Open();
-			NpgsqlCommand command = new NpgsqlCommand(sql, conn);
-			int rowCount = command.ExecuteNonQuery();
-			conn.Close();
+				//String sql = String.Format("insert into public.features (user_id, geom) values({0}, ST_GeomFromText('POINT({1} {2})', {3}))", DataHelper.userID, ((MapPoint)geometry).X, ((MapPoint)geometry).Y, ((MapPoint)geometry).SpatialReference.GcsWkid);
+				String sql = String.Format("insert into public.features (user_id, geom) values({0}, ST_GeomFromText('{1}', {2}))", DataHelper.userID, wktString, srid);
+				Debug.WriteLine("sql = " + sql);
+				Npgsql.NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=postgres; " +
+				   "Password=postgres;Database=geomapmaker;");
+				conn.Open();
+				NpgsqlCommand command = new NpgsqlCommand(sql, conn);
+				int count = command.ExecuteNonQuery();
+				conn.Close();
 
-			await MapView.Active.RedrawAsync(true);
+				//ActiveMapView.Redraw(true);// RedrawAsync(true);
+				featureLayer.SetDataConnection(this.sqldc);
+
+				return count;
+			});
 
 			if (rowCount > 0)
 			{
@@ -88,9 +101,9 @@ namespace LoginTest02
 			return true;
 		}
 
-		private async Task addFeatureLayer()
+		private Task addFeatureLayer()
 		{
-			await ArcGIS.Desktop.Framework.Threading.Tasks.QueuedTask.Run(() =>
+			return ArcGIS.Desktop.Framework.Threading.Tasks.QueuedTask.Run(() =>
 			{
 				ArcGIS.Core.Data.DatabaseConnectionProperties connectionProperties = new DatabaseConnectionProperties(EnterpriseDatabaseType.PostgreSQL)
 				{
@@ -105,7 +118,8 @@ namespace LoginTest02
 				using (Geodatabase geodatabase = new Geodatabase(connectionProperties))
 				{
 					// Use the geodatabase
-					CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
+					//CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
+					this.sqldc = new CIMSqlQueryDataConnection()
 					{
 						WorkspaceConnectionString = geodatabase.GetConnectionString(),
 						GeometryType = esriGeometryType.esriGeometryPolygon,
@@ -115,7 +129,6 @@ namespace LoginTest02
 						Dataset = "features"
 					};
 					featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: DataHelper.userName + "'s polygons");
-
 				}
 			});
 		}

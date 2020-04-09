@@ -10,33 +10,38 @@
     <!-- Note subject can be one or more of these topics:
                     Content, Framework, Editing, Geodatabase, Geometry, Geoprocessing, Layouts, Map Authoring, Map Exploration -->
   </AddInInfo>
+  <Configuration appName="LoginTest02">
+    <ConfigurationManager className="LoginTest2Configuration" />
+  </Configuration>
   <modules>
     <insertModule id="LoginTest02_Module" className="Module1" autoLoad="false" caption="Module1">
       <!-- uncomment to have the control hosted on a separate tab-->
       <tabs>
-        <!--<tab id="LoginTest02_Tab1" caption="New Tab">
-          <group refID="LoginTest02_Group1"/>
-        </tab>-->
+        <tab id="AZGS_Tab" caption="AZGS">
+          <group refID="LoginTest02_Group1" />
+          <group refID="LoginTest02_Group2" />
+          <group refID="LoginTest02_Group3" />
+        </tab>
       </tabs>
       <groups>
         <!-- comment this out if you have no controls on the Addin tab to avoid
               an empty group-->
-        <group id="LoginTest02_Group1" caption="" appearsOnAddInTab="true">
+        <group id="LoginTest02_Group1" caption="Admin">
           <!-- host controls within groups -->
           <button refID="LoginTest02_LoginButton" size="large" />
         </group>
-        <group id="LoginTest02_Group2" caption="Features" appearsOnAddInTab="true">
+        <group id="LoginTest02_Group2" caption="Features">
           <!-- host controls within groups -->
           <!--<button refID="LoginTest02_PointButton" size="large" />-->
           <tool refID="LoginTest02_PointTool" size="large" />
           <tool refID="LoginTest02_LineTool" size="large" />
           <tool refID="LoginTest02_PolyTool" size="large" />
         </group>
-		  <group id="LoginTest02_Group3" caption="Select" appearsOnAddInTab="true">
-			  <tool refID="LoginTest02_SelectTool" size="large" />
-		  </group>
-	  </groups>
-		<controls>
+        <group id="LoginTest02_Group3" caption="Select">
+          <tool refID="LoginTest02_SelectTool" size="large" />
+        </group>
+      </groups>
+      <controls>
         <!-- add your controls here -->
         <button id="LoginTest02_LoginButton" caption="Login" className="LoginButton" loadOnClick="true" smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue16.png" largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonBlue32.png">
           <tooltip heading="Tooltip Heading">Tooltip text<disabledText /></tooltip>
