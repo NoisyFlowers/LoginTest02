@@ -150,6 +150,7 @@
     <Compile Include="DataHelper.cs" />
     <Compile Include="LineTool.cs" />
     <Compile Include="LoginTest2Configuration.cs" />
+    <Compile Include="PointConstructionTool.cs" />
     <Compile Include="PointDialog.cs">
       <SubType>Form</SubType>
     </Compile>

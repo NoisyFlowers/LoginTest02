@@ -31,6 +31,22 @@ namespace LoginTest02
 			SketchType = SketchGeometryType.Point;
 			SketchOutputMode = SketchOutputMode.Map;
 
+			//DataHelper.OnUserLogin += new DataHelper.UserLogin(onUserLogin);
+			DataHelper.UserLoginHandler += onUserLogin;
+
+		}
+
+		void onUserLogin()
+		{
+			//this.OnToolDeactivateAsync(false);
+			QueuedTask.Run(() =>
+			{
+				if (featureLayer != null)
+				{
+					MapView.Active.Map.RemoveLayer(featureLayer);
+					addFeatureLayer();
+				}
+			});
 		}
 
 		protected override Task OnToolDeactivateAsync(bool hasMapViewChanged)
@@ -59,8 +75,27 @@ namespace LoginTest02
 			return addFeatureLayer();
 		}
 
-		protected override async Task<bool> OnSketchCompleteAsync(Geometry geometry)
+		protected override /*async*/ Task<bool> OnSketchCompleteAsync(Geometry geometry)
 		{
+			Debug.WriteLine("OnSketchCompleteAsync, enter");
+
+			// Create an edit operation
+			var createOperation = new EditOperation();
+			createOperation.Name = string.Format("Create {0}", "points");
+			createOperation.SelectNewFeatures = true;
+
+			// Queue feature creation
+			//createOperation.Create(featureLayer, geometry);
+			var attributes = new Dictionary<string, object>();
+			attributes.Add("geom", geometry);
+			attributes.Add("user_id", DataHelper.userID);
+
+			createOperation.Create(featureLayer, attributes);
+
+			// Execute the operation
+			return createOperation.ExecuteAsync();
+
+			/*
 			var rowCount = await QueuedTask.Run(() =>
 			{
 				WKTExportFlags exportFlagsNoZ = WKTExportFlags.wktExportStripZs;
@@ -98,17 +133,20 @@ namespace LoginTest02
 			}
 			
 			return true;
+			*/
 		}
 
         private Task addFeatureLayer()
         {
-            return ArcGIS.Desktop.Framework.Threading.Tasks.QueuedTask.Run(() =>
+			Debug.WriteLine("addFeatureLayer, enter");
+
+			return ArcGIS.Desktop.Framework.Threading.Tasks.QueuedTask.Run(() =>
             {
                 ArcGIS.Core.Data.DatabaseConnectionProperties connectionProperties = new DatabaseConnectionProperties(EnterpriseDatabaseType.PostgreSQL)
                 {
                     AuthenticationMode = AuthenticationMode.DBMS,
                     Instance = @"127.0.0.1",
-                    Database = "geomapmaker",
+                    Database = "geomapmaker2",
                     User = "douglas",
                     Password = "password",
                     //Version = "dbo.DEFAULT"
@@ -118,7 +156,8 @@ namespace LoginTest02
                 {
 					// Use the geodatabase
 					//CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
-					
+
+					/*
 					this.sqldc = new CIMSqlQueryDataConnection()
 					{
 						WorkspaceConnectionString = geodatabase.GetConnectionString(),
@@ -129,15 +168,31 @@ namespace LoginTest02
                         Dataset = "features"
                     };
 					featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: DataHelper.userName + "'s points");
-					
+					*/
+
 					/*
 					string url = @"C:\Users\Douglas\Documents\testCollections\GeneWash.gdb\GeneWash.gdb\CrossSectionB\CSBMapUnitPolys";  //FeatureClass of a FileGeodatabase
 
 					Uri uri = new Uri(url);
 					featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(uri, MapView.Active.Map);
 					*/
+
+					using (FeatureClass featureClass = geodatabase.OpenDataset<FeatureClass>("geomapmaker2.geomapmaker2.point_features"))
+					{
+						var layerParamsQueryDefn = new FeatureLayerCreationParams(featureClass)
+						{
+							IsVisible = true,
+							DefinitionFilter = new CIMDefinitionFilter()
+							{
+								Name = "User",
+								DefinitionExpression = "user_id = " + DataHelper.userID
+							}
+						};
+						featureLayer = LayerFactory.Instance.CreateLayer<FeatureLayer>(layerParamsQueryDefn, MapView.Active.Map);
+					}
+
 				}
-            });
+			});
         }
     }
 }

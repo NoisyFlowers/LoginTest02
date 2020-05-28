@@ -33,6 +33,7 @@
         <group id="LoginTest02_Group2" caption="Features">
           <!-- host controls within groups -->
           <!--<button refID="LoginTest02_PointButton" size="large" />-->
+          <!--<tool refID="LoginTest02_PointConstructionTool" size="large" />-->
           <tool refID="LoginTest02_PointTool" size="large" />
           <tool refID="LoginTest02_LineTool" size="large" />
           <tool refID="LoginTest02_PolyTool" size="large" />
@@ -62,6 +63,17 @@
         </tool>
         <tool id="LoginTest02_SelectTool" caption="SelectTool" className="SelectTool" loadOnClick="true" smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed16.png" largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed32.png" condition="esri_mapping_mapPane">
           <tooltip heading="Tooltip Heading">Select a feature<disabledText /></tooltip>
+        </tool>
+        <tool id="LoginTest02_PointConstructionTool" 
+              categoryRefID="esri_editing_construction_point" 
+              caption="PointConstructionTool" 
+              className="PointConstructionTool" 
+              loadOnClick="true" 
+              smallImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed16.png" 
+              largeImage="pack://application:,,,/ArcGIS.Desktop.Resources;component/Images/GenericButtonRed32.png">
+          <!--note: use esri_editing_construction_polyline,  esri_editing_construction_polygon for categoryRefID as needed-->
+          <tooltip heading="Tooltip Heading">Tooltip text<disabledText /></tooltip>
+          <content guid="ca195080-ec78-414f-b6b6-2cc8d9ca9961" />
         </tool>
       </controls>
     </insertModule>

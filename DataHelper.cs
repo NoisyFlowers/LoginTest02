@@ -10,5 +10,28 @@ namespace LoginTest02
 	{
 		public static int userID;
 		public static String userName;
+
+		/*
+		public delegate void UserLogin();
+		public static event UserLogin OnUserLogin;
+
+		public static void raiseLogin()
+		{
+			if (OnUserLogin != null)
+			{ 
+				OnUserLogin(); 
+			}
+		}
+		*/
+
+		public delegate void UserLoginDelegate();
+		public static event UserLoginDelegate UserLoginHandler;
+
+		public static void UserLogin(/*int uID, String uName*/)
+		{
+			//userID = uID;
+			//userName = uName;
+			UserLoginHandler?.Invoke();
+		}
 	}
 }
