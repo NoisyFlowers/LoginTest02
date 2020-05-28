@@ -23,7 +23,6 @@ namespace LoginTest02
 	internal class PointTool : MapTool
 	{
 		private FeatureLayer featureLayer = null;
-		private CIMSqlQueryDataConnection sqldc = null;
 
 		public PointTool()
 		{
@@ -31,14 +30,12 @@ namespace LoginTest02
 			SketchType = SketchGeometryType.Point;
 			SketchOutputMode = SketchOutputMode.Map;
 
-			//DataHelper.OnUserLogin += new DataHelper.UserLogin(onUserLogin);
 			DataHelper.UserLoginHandler += onUserLogin;
 
 		}
 
 		void onUserLogin()
 		{
-			//this.OnToolDeactivateAsync(false);
 			QueuedTask.Run(() =>
 			{
 				if (featureLayer != null)
@@ -51,16 +48,6 @@ namespace LoginTest02
 
 		protected override Task OnToolDeactivateAsync(bool hasMapViewChanged)
 		{
-			/*
-			if (featureLayer != null)
-			{
-				QueuedTask.Run(() =>
-				{
-					MapView.Active.Map.RemoveLayer(featureLayer);
-				});
-			}
-			return base.OnToolDeactivateAsync(true);
-			*/
 			return QueuedTask.Run(() =>
 			{
 				if (featureLayer != null)
@@ -94,46 +81,6 @@ namespace LoginTest02
 
 			// Execute the operation
 			return createOperation.ExecuteAsync();
-
-			/*
-			var rowCount = await QueuedTask.Run(() =>
-			{
-				WKTExportFlags exportFlagsNoZ = WKTExportFlags.wktExportStripZs;
-				WKTExportFlags exportFlagsNoM = WKTExportFlags.wktExportStripMs;
-				var wktString = GeometryEngine.Instance.ExportToWKT(exportFlagsNoZ | exportFlagsNoM, geometry);
-
-				Debug.WriteLine("geometry = " + wktString);
-
-				var srid = geometry.SpatialReference.GcsWkid;
-				Debug.WriteLine("srid = " + srid);
-
-				//String sql = String.Format("insert into public.features (user_id, geom) values({0}, ST_GeomFromText('POINT({1} {2})', {3}))", DataHelper.userID, ((MapPoint)geometry).X, ((MapPoint)geometry).Y, ((MapPoint)geometry).SpatialReference.GcsWkid);
-				String sql = String.Format("insert into public.features (user_id, geom) values({0}, ST_GeomFromText('{1}', {2}))", DataHelper.userID, wktString, srid);
-				Debug.WriteLine("sql = " + sql);
-				Npgsql.NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=postgres; " +
-				   "Password=postgres;Database=geomapmaker;");
-				conn.Open();
-				NpgsqlCommand command = new NpgsqlCommand(sql, conn);
-				int count = command.ExecuteNonQuery();
-				conn.Close();
-
-				//ActiveMapView.Redraw(true);// RedrawAsync(true);
-				featureLayer.SetDataConnection(this.sqldc);
-
-				return count;
-			});
-
-			if (rowCount > 0)
-			{
-				MessageBox.Show("Point added");
-			} 
-			else
-			{
-				MessageBox.Show("Something went wrong");
-			}
-			
-			return true;
-			*/
 		}
 
         private Task addFeatureLayer()
@@ -154,29 +101,6 @@ namespace LoginTest02
 
                 using (Geodatabase geodatabase = new Geodatabase(connectionProperties))
                 {
-					// Use the geodatabase
-					//CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
-
-					/*
-					this.sqldc = new CIMSqlQueryDataConnection()
-					{
-						WorkspaceConnectionString = geodatabase.GetConnectionString(),
-                        GeometryType = esriGeometryType.esriGeometryPoint,
-                        OIDFields = "OBJECTID",
-                        Srid = "4326",
-                        SqlQuery = "select * from public.features where user_id = " + DataHelper.userID + " and ST_GeometryType(geom)='ST_Point'",
-                        Dataset = "features"
-                    };
-					featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: DataHelper.userName + "'s points");
-					*/
-
-					/*
-					string url = @"C:\Users\Douglas\Documents\testCollections\GeneWash.gdb\GeneWash.gdb\CrossSectionB\CSBMapUnitPolys";  //FeatureClass of a FileGeodatabase
-
-					Uri uri = new Uri(url);
-					featureLayer = (FeatureLayer)LayerFactory.Instance.CreateLayer(uri, MapView.Active.Map);
-					*/
-
 					using (FeatureClass featureClass = geodatabase.OpenDataset<FeatureClass>("geomapmaker2.geomapmaker2.point_features"))
 					{
 						var layerParamsQueryDefn = new FeatureLayerCreationParams(featureClass)
@@ -190,7 +114,6 @@ namespace LoginTest02
 						};
 						featureLayer = LayerFactory.Instance.CreateLayer<FeatureLayer>(layerParamsQueryDefn, MapView.Active.Map);
 					}
-
 				}
 			});
         }

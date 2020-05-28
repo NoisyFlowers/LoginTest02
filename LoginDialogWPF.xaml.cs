@@ -91,34 +91,22 @@ namespace LoginTest02
         {
             Debug.WriteLine("selected index = " + UserCombo.SelectedIndex);
 
-            DataHelper.UserLogin();
 
+            conn.Open();
+            NpgsqlCommand command;
             if (UserCombo.SelectedIndex == -1)
             {
                 Debug.WriteLine("new name");
-                //NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=douglas; " +
-                //   "Password=password;Database=geomapmaker;");
-                conn.Open();
-                NpgsqlCommand command = new NpgsqlCommand("insert into geomapmaker2.users (name, notes) values ($c$" + UserCombo.Text + "$c$, $n$" + NotesTextBox.Text + "$n$) returning id", conn);
-                // int rowCount = command.ExecuteNonQuery();
-                //this.parentModule.userID = (int)command.ExecuteScalar();
-                DataHelper.userID = (int)command.ExecuteScalar();
-                //Debug.WriteLine("user id = " + id);
-                conn.Close();
+                command = new NpgsqlCommand("insert into geomapmaker2.users (name, notes) values ($c$" + UserCombo.Text + "$c$, $n$" + NotesTextBox.Text + "$n$) returning id", conn);
             }
             else
             {
                 Debug.WriteLine("old name");
-                //NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=douglas; " +
-                //   "Password=password;Database=geomapmaker;");
-                conn.Open();
-                NpgsqlCommand command = new NpgsqlCommand("update geomapmaker2.users set notes = $n$" + NotesTextBox.Text + "$n$ where name = $c$" + UserCombo.Text + "$c$ returning id", conn);
-                //int rowCount = command.ExecuteNonQuery();
-                //this.parentModule.userID = (int)command.ExecuteScalar();
-                DataHelper.userID = (int)command.ExecuteScalar();
-                conn.Close();
+                command = new NpgsqlCommand("update geomapmaker2.users set notes = $n$" + NotesTextBox.Text + "$n$ where name = $c$" + UserCombo.Text + "$c$ returning id", conn);
             }
-            DataHelper.userName = UserCombo.Text;
+            int userID = (int)command.ExecuteScalar();
+            conn.Close();
+            DataHelper.UserLogin(userID, UserCombo.Text);
             Debug.WriteLine("selected text = " + UserCombo.Text);
             Debug.WriteLine("LoginDialog, userID = " + DataHelper.userID);
             // UserSelectionFinishedEventArgs userSelectionFinishedEventArgs = new UserSelectionFinishedEventArgs(this.parentModule.userID); //TODO: using module context for now
