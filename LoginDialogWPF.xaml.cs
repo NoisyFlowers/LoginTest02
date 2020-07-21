@@ -27,8 +27,8 @@ namespace LoginTest02
     /// </summary>
     public partial class LoginDialogWPF : Window
 	{
-        NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=douglas; " +
-                   "Password=password;Database=geomapmaker2;");
+        NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=geomapmaker; " +
+                   "Password=password;Database=geomapmaker;");
 
         public LoginDialogWPF()
 		{
@@ -37,7 +37,7 @@ namespace LoginTest02
             //NpgsqlConnection conn = new NpgsqlConnection("Server=127.0.0.1;User Id=douglas; " +
             //   "Password=password;Database=geomapmaker;");
             conn.Open();
-            NpgsqlCommand command = new NpgsqlCommand("SELECT id, name, notes FROM geomapmaker2.users order by name asc", conn);
+            NpgsqlCommand command = new NpgsqlCommand("SELECT id, name, notes FROM geomapmaker.users order by name asc", conn);
             NpgsqlDataReader dr = command.ExecuteReader();
 
             DataTable dT = new DataTable();
@@ -97,12 +97,12 @@ namespace LoginTest02
             if (UserCombo.SelectedIndex == -1)
             {
                 Debug.WriteLine("new name");
-                command = new NpgsqlCommand("insert into geomapmaker2.users (name, notes) values ($c$" + UserCombo.Text + "$c$, $n$" + NotesTextBox.Text + "$n$) returning id", conn);
+                command = new NpgsqlCommand("insert into geomapmaker.users (name, notes) values ($c$" + UserCombo.Text + "$c$, $n$" + NotesTextBox.Text + "$n$) returning id", conn);
             }
             else
             {
                 Debug.WriteLine("old name");
-                command = new NpgsqlCommand("update geomapmaker2.users set notes = $n$" + NotesTextBox.Text + "$n$ where name = $c$" + UserCombo.Text + "$c$ returning id", conn);
+                command = new NpgsqlCommand("update geomapmaker.users set notes = $n$" + NotesTextBox.Text + "$n$ where name = $c$" + UserCombo.Text + "$c$ returning id", conn);
             }
             int userID = (int)command.ExecuteScalar();
             conn.Close();
@@ -123,6 +123,7 @@ namespace LoginTest02
             this.DialogResult = false;  //DialogResult.Cancel;
         }
 
+        /*
         private async Task openDatabase()
         {
             await ArcGIS.Desktop.Framework.Threading.Tasks.QueuedTask.Run(() =>
@@ -140,16 +141,19 @@ namespace LoginTest02
                     Instance = @"127.0.0.1",
 
                     // Provided that a database called LocalGovernment has been created on the testInstance and geodatabase has been enabled on the database.
-                    Database = "geomapmaker2",
+                    Database = "geomapmaker",
 
                     // Provided that a login called gdb has been created and corresponding schema has been created with the required permissions.
-                    User = "douglas",
+                    User = "geomapmaker",
                     Password = "password",
                     //Version = "dbo.DEFAULT"
                 };
 
                 using (Geodatabase geodatabase = new Geodatabase(connectionProperties))
                 {
+                    DataHelper.connectionString = geodatabase.GetConnectionString();
+                    Debug.WriteLine("DataHelper.connectionString set to " + DataHelper.connectionString);
+
                     // Use the geodatabase
                     CIMSqlQueryDataConnection sqldc = new CIMSqlQueryDataConnection()
                     {
@@ -157,7 +161,7 @@ namespace LoginTest02
                         GeometryType = esriGeometryType.esriGeometryPoint,
                         OIDFields = "OBJECTID",
                         Srid = "4326",
-                        SqlQuery = "select * from geomapmaker2.features where id = " + DataHelper.userID + " and ST_GeometryType(geom)='ST_Point'",
+                        SqlQuery = "select * from geomapmaker.features where id = " + DataHelper.userID + " and ST_GeometryType(geom)='ST_Point'",
                         Dataset = "features"
                     };
                     FeatureLayer flyr = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: DataHelper.userName + "'s points");
@@ -168,7 +172,7 @@ namespace LoginTest02
                         GeometryType = esriGeometryType.esriGeometryPolyline,
                         OIDFields = "OBJECTID",
                         Srid = "4326",
-                        SqlQuery = "select * from geomapmaker2.features where id = " + DataHelper.userID + " and ST_GeometryType(geom)='ST_MultiLineString'",
+                        SqlQuery = "select * from geomapmaker.features where id = " + DataHelper.userID + " and ST_GeometryType(geom)='ST_MultiLineString'",
                         Dataset = "features"
                     };
                     FeatureLayer flyrLines = (FeatureLayer)LayerFactory.Instance.CreateLayer(sqldc, MapView.Active.Map, layerName: DataHelper.userName + "'s lines");
@@ -176,6 +180,7 @@ namespace LoginTest02
                 }
             });
         }
+        */
 
     }
 }

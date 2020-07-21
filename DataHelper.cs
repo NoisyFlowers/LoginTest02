@@ -14,6 +14,8 @@ namespace LoginTest02
 		public delegate void UserLoginDelegate();
 		public static event UserLoginDelegate UserLoginHandler;
 
+		public static string connectionString;
+
 		public static void UserLogin(int uID, String uName)
 		{
 			userID = uID;

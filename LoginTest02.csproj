@@ -170,6 +170,8 @@
     </Compile>
     <Compile Include="PointTool.cs" />
     <Compile Include="PolyTool.cs" />
+    <Compile Include="ProjectComboBoxItem.cs" />
+    <Compile Include="ProjectsComboBox.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelectTool.cs" />
     <Compile Include="UserSelectionFinishedEvent.cs" />

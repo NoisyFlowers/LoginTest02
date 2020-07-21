@@ -76,14 +76,60 @@ namespace LoginTest02
 			var attributes = new Dictionary<string, object>();
 			attributes.Add("geom", geometry);
 			attributes.Add("user_id", DataHelper.userID);
+			//attributes.Add("attr01", "hi there");
+			//attributes.Add("attr02", 5);
 
-			createOperation.Create(featureLayer, attributes);
+			long newFeatureID = -1;
+			createOperation.Create(featureLayer, attributes, (object_id) => newFeatureID = object_id); //TODO: how to get at other fields, like id?
 
 			// Execute the operation
-			return createOperation.ExecuteAsync();
+			//return createOperation.ExecuteAsync();
+
+			return ArcGIS.Desktop.Framework.Threading.Tasks.QueuedTask.Run(() =>
+			{
+				createOperation.Execute();
+
+				var attributeOperation = createOperation.CreateChainedOperation();
+				attributes = new Dictionary<string, object>();
+				attributes.Add("feature_id", newFeatureID);
+				attributes.Add("attr01", "Complete and Unabridged");
+				attributes.Add("attr02", 42);
+
+				ArcGIS.Core.Data.DatabaseConnectionProperties connectionProperties = new DatabaseConnectionProperties(EnterpriseDatabaseType.PostgreSQL)
+				{
+					AuthenticationMode = AuthenticationMode.DBMS,
+					Instance = @"127.0.0.1",
+					Database = "geomapmaker2",
+					User = "douglas",
+					Password = "password",
+					//Version = "dbo.DEFAULT"
+				};
+
+				using (Geodatabase geodatabase = new Geodatabase(connectionProperties))
+				//using (RelationshipClass relationshipClass = geodatabase.OpenDataset<RelationshipClass>("geomapmaker2.geomapmaker2.point_features_some_point_attributes"))
+				//using (FeatureClass featureClass = geodatabase.OpenDataset<FeatureClass>("geomapmaker2.geomapmaker2.point_features"))
+				using (Table attributeTable = geodatabase.OpenDataset<Table>("geomapmaker2.geomapmaker2.some_point_attributes"))
+				{
+					attributeOperation.Create(attributeTable, attributes);
+					return attributeOperation.ExecuteAsync();
+					/*
+					QueryFilter queryFilter = new QueryFilter { WhereClause = "object_id = " + newFeatureID };
+
+					using (RowCursor rowCursor = featureClass.Search(queryFilter, false))
+					{
+						while (rowCursor.MoveNext())
+						{
+							   rowCursor.CurrentGetTable????
+						}
+
+					}
+					*/
+
+				}
+			});
 		}
 
-        private Task addFeatureLayer()
+		private Task addFeatureLayer()
         {
 			Debug.WriteLine("addFeatureLayer, enter");
 
